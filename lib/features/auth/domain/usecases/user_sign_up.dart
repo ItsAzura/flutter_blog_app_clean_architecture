@@ -32,10 +32,30 @@ class UserSignUp implements UseCase<User, UserSignUpParams> {
       return left(Failure('Email, password, and name must not be empty.'));
     }
 
+    // Thêm validation cho email format
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      caseSensitive: false,
+    );
+    
+    if (!emailRegex.hasMatch(params.email.trim())) {
+      return left(Failure('Email không hợp lệ. Vui lòng kiểm tra lại định dạng email.'));
+    }
+
+    // Kiểm tra độ dài email
+    if (params.email.trim().length > 254) {
+      return left(Failure('Email quá dài.'));
+    }
+
+    // Kiểm tra độ dài password
+    if (params.password.length < 6) {
+      return left(Failure('Mật khẩu phải có ít nhất 6 ký tự.'));
+    }
+
     //Gọi phương thức signUpWithEmailPassword từ authRepository để đăng ký người dùng
     return await authRepository.signUpWithEmailPassword(
-      name: params.name,
-      email: params.email,
+      name: params.name.trim(),
+      email: params.email.trim().toLowerCase(), // Normalize email
       password: params.password,
     );
   }

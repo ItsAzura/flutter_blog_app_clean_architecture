@@ -1,3 +1,5 @@
+import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
+
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -76,8 +78,47 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       //trả về một đối tượng UserModel được tạo từ thông tin người dùng trả về từ Supabase
       return UserModel.fromJson(response.user!.toJson());
+    } on ServerException {
+      // Re-throw ServerException để giữ nguyên thông báo lỗi
+      rethrow;
     } catch (e) {
-      throw ServerException('User is null!', code: 'USER_NULL');
+      // Xử lý các lỗi khác từ Supabase
+      final errorMessage = e.toString().toLowerCase();
+
+      if (errorMessage.contains('email_address_invalid') ||
+          errorMessage.contains('invalid email') ||
+          errorMessage.contains('email format')) {
+        throw ServerException(
+          'Email không hợp lệ. Vui lòng kiểm tra lại định dạng email.',
+          code: 'INVALID_EMAIL',
+        );
+      } else if (errorMessage.contains('password') &&
+          errorMessage.contains('weak')) {
+        throw ServerException(
+          'Mật khẩu phải có ít nhất 6 ký tự',
+          code: 'WEAK_PASSWORD',
+        );
+      } else if (errorMessage.contains('already registered') ||
+          errorMessage.contains('already exists') ||
+          errorMessage.contains('email already')) {
+        throw ServerException(
+          'Email đã được đăng ký. Vui lòng sử dụng email khác.',
+          code: 'EMAIL_EXISTS',
+        );
+      } else if (errorMessage.contains('network') ||
+          errorMessage.contains('connection')) {
+        throw ServerException(
+          'Lỗi kết nối mạng. Vui lòng kiểm tra internet và thử lại.',
+          code: 'NETWORK_ERROR',
+        );
+      } else {
+        // Log lỗi để debug
+        log('Supabase Error: $e');
+        throw ServerException(
+          'Lỗi đăng ký: ${e.toString()}',
+          code: 'SIGNUP_ERROR',
+        );
+      }
     }
   }
 }
