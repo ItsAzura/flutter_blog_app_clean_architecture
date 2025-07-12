@@ -15,6 +15,9 @@ Future<void> initDependencies() async {
 
   //Đăng ký SupabaseClient vào serviceLocator để sử dụng trong các phần khác của ứng dụng
   serviceLocator.registerLazySingleton(() => supabase.client);
+
+  //core
+  serviceLocator.registerLazySingleton(() => AppUserCubit());
 }
 
 void _initAuth() {
@@ -32,10 +35,18 @@ void _initAuth() {
     //* Usecases
     // Đăng ký UserSignUp use case để xử lý đăng ký người dùng
     ..registerFactory(() => UserSignUp(serviceLocator()))
+    // Đăng ký UserLogin use case để xử lý đăng nhập người dùng
     ..registerFactory(() => UserLogin(serviceLocator()))
+    // Đăng ký CurrentUser use case để lấy thông tin người dùng hiện tại
+    ..registerFactory(() => CurrentUser(serviceLocator()))
     //* Bloc
     // Đăng ký AuthBloc để quản lý trạng thái đăng nhập và đăng ký
     ..registerLazySingleton(
-      () => AuthBloc(userSignUp: serviceLocator(), userLogin: serviceLocator()),
+      () => AuthBloc(
+        userSignUp: serviceLocator(),
+        userLogin: serviceLocator(),
+        currentUser: serviceLocator(),
+        appUserCubit: serviceLocator(),
+      ),
     );
 }
