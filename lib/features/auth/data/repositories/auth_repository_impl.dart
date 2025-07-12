@@ -16,12 +16,18 @@ class AuthRepositoryImpl implements AuthRepository {
     throw UnimplementedError();
   }
 
+  //* Hàm đăng nhập tài khoản với email và mật khẩu
   @override
   Future<Either<Failure, User>> loginWithEmailPassword({
     required String email,
     required String password,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    return _getUser(
+      () async => await remoteDataSource.loginWithEmailPassword(
+        email: email,
+        password: password,
+      ),
+    );
   }
 
   //* Hàm đăng ký tài khoản mới với email và mật khẩu
@@ -33,14 +39,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       //Gọi phương thức signUpWithEmailPassword từ remoteDataSource để đăng ký tài khoản mới
-      final userId = await remoteDataSource.signUpWithEmailPassword(
+      final user = await remoteDataSource.signUpWithEmailPassword(
         name: name,
         email: email,
         password: password,
       );
 
       //Nếu userId rỗng, ném ra ngoại lệ ServerException
-      if (userId.id.isEmpty) {
+      if (user.id.isEmpty) {
         throw ServerException(
           'Failed to sign up. User ID is empty.',
           code: 'USER_ID_EMPTY',
@@ -48,7 +54,17 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       //Trả về đối tượng User từ userId
-      return right(userId);
+      return right(user);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
+    try {
+      final user = await fn();
+
+      return right(user);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }

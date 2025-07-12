@@ -1,4 +1,4 @@
-import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
+import 'dart:developer';
 
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
@@ -27,11 +27,11 @@ abstract interface class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  //Khởi tạo một đối tượng SupabaseClient để tương tác với Supabase
+  //* Khởi tạo một đối tượng SupabaseClient để tương tác với Supabase
   final SupabaseClient supabaseClient;
   AuthRemoteDataSourceImpl(this.supabaseClient);
 
-  //trả về phiên đăng nhập hiện tại
+  //* trả về phiên đăng nhập hiện tại
   @override
   Session? get currentUserSession => supabaseClient.auth.currentSession;
 
@@ -44,8 +44,32 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> loginWithEmailPassword({
     required String email,
     required String password,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    try {
+      //nếu email hoặc mật khẩu rỗng thì ném ra ngoại lệ
+      if (email.isEmpty || password.isEmpty) {
+        throw ServerException(
+          'Email and password must not be empty.',
+          code: 'EMPTY_FIELDS',
+        );
+      }
+
+      //Gọi phương thức signInWithPassword của SupabaseClient để đăng nhập người dùng
+      final response = await supabaseClient.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (response.user == null) {
+        throw ServerException('User is null!', code: 'USER_NULL');
+      }
+
+      return UserModel.fromJson(response.user!.toJson());
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 
   //* Đăng ký tài khoản mới với email và mật khẩu

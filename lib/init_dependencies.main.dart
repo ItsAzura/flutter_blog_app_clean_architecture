@@ -32,7 +32,10 @@ void _initAuth() {
     //* Usecases
     // Đăng ký UserSignUp use case để xử lý đăng ký người dùng
     ..registerFactory(() => UserSignUp(serviceLocator()))
+    ..registerFactory(() => UserLogin(serviceLocator()))
     //* Bloc
     // Đăng ký AuthBloc để quản lý trạng thái đăng nhập và đăng ký
-    ..registerLazySingleton(() => AuthBloc(userSignUp: serviceLocator()));
+    ..registerLazySingleton(
+      () => AuthBloc(userSignUp: serviceLocator(), userLogin: serviceLocator()),
+    );
 }
