@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/theme/app_palette.dart';
+import 'package:blog_app/core/utils/pick_image.dart';
 import 'package:blog_app/features/blog/presentation/widgets/blog_editor.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,16 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
   final contentController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   List<String> selectedTopics = [];
+  File? image;
+
+  void selectImage() async {
+    final pickedImage = await pickImage();
+    if (pickedImage != null) {
+      setState(() {
+        image = pickedImage;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -46,30 +59,44 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
             key: formKey,
             child: Column(
               children: [
-                GestureDetector(
-                  onTap: () {},
-                  child: DottedBorder(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-
-                      height: 150,
-                      width: double.infinity,
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.folder_open, size: 40),
-                          SizedBox(height: 15),
-                          Text(
-                            'Select your image',
-                            style: TextStyle(fontSize: 15),
+                image != null
+                    ? GestureDetector(
+                        onTap: selectImage,
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 150,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(image!, fit: BoxFit.cover),
                           ),
-                        ],
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          selectImage();
+                        },
+                        child: DottedBorder(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+
+                            height: 150,
+                            width: double.infinity,
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.folder_open, size: 40),
+                                SizedBox(height: 15),
+                                Text(
+                                  'Select your image',
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 20),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
