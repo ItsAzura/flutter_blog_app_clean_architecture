@@ -18,9 +18,27 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
   BlogRemoteDataSourceImpl(this.supabaseClient);
 
   @override
-  Future<List<BlogModel>> getAllBlogs() {
-    // TODO: implement getAllBlogs
-    throw UnimplementedError();
+  Future<List<BlogModel>> getAllBlogs() async {
+    try {
+      final blogs = await supabaseClient
+          .from('blogs')
+          .select('*, profiles (name)');
+
+      if (blogs.isEmpty) {
+        throw ServerException('No blogs found');
+      }
+      return blogs
+          .map(
+            (blog) => BlogModel.fromJson(
+              blog,
+            ).copyWith(posterName: blog['profiles']['name']),
+          )
+          .toList();
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 
   @override

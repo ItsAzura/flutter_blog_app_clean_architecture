@@ -66,6 +66,10 @@ void _initBlog() {
     )
     // Usecases
     ..registerFactory(() => UploadBlog(serviceLocator()))
+    ..registerFactory(() => GetAllBlogs(serviceLocator()))
     // Bloc
-    ..registerLazySingleton(() => BlogBloc(uploadBlog: serviceLocator()));
+    ..registerLazySingleton(
+      () =>
+          BlogBloc(uploadBlog: serviceLocator(), getAllBlogs: serviceLocator()),
+    );
 }
