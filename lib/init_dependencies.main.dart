@@ -7,6 +7,9 @@ Future<void> initDependencies() async {
   //Khởi tạo auth
   _initAuth();
 
+  //Khởi tạo blog
+  _initBlog();
+
   //khởi tạo Sdk Supabase
   final supabase = await Supabase.initialize(
     url: AppSecrets.supabaseUrl,
@@ -49,4 +52,20 @@ void _initAuth() {
         appUserCubit: serviceLocator(),
       ),
     );
+}
+
+void _initBlog() {
+  // Datasource
+  serviceLocator
+    ..registerFactory<BlogRemoteDataSource>(
+      () => BlogRemoteDataSourceImpl(serviceLocator()),
+    )
+    // Repository
+    ..registerFactory<BlogRepository>(
+      () => BlogRepositoryImpl(serviceLocator()),
+    )
+    // Usecases
+    ..registerFactory(() => UploadBlog(serviceLocator()))
+    // Bloc
+    ..registerLazySingleton(() => BlogBloc(uploadBlog: serviceLocator()));
 }
