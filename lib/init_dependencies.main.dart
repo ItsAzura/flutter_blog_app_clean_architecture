@@ -19,8 +19,14 @@ Future<void> initDependencies() async {
   //Đăng ký SupabaseClient vào serviceLocator để sử dụng trong các phần khác của ứng dụng
   serviceLocator.registerLazySingleton(() => supabase.client);
 
+  serviceLocator.registerFactory(() => InternetConnection());
+
   //core
   serviceLocator.registerLazySingleton(() => AppUserCubit());
+
+  serviceLocator.registerFactory<ConnectionChecker>(
+    () => ConnectionCheckerImpl(serviceLocator()),
+  );
 }
 
 void _initAuth() {
@@ -33,7 +39,7 @@ void _initAuth() {
     //* Repository
     // đăng ký AuthRepositoryImpl làm repository xử lý logic nghiệp vụ.
     ..registerFactory<AuthRepository>(
-      () => AuthRepositoryImpl(serviceLocator()),
+      () => AuthRepositoryImpl(serviceLocator(), serviceLocator()),
     )
     //* Usecases
     // Đăng ký UserSignUp use case để xử lý đăng ký người dùng

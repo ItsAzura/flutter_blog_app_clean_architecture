@@ -1,39 +1,47 @@
-import 'package:blog_app/core/common/entities/user.dart';
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/core/error/failures.dart';
+import 'package:blog_app/core/network/connection_checker.dart';
 import 'package:blog_app/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:blog_app/core/common/entities/user.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:blog_app/features/auth/domain/repository/auth_repository.dart';
-import 'package:fpdart/src/either.dart';
+import 'package:fpdart/fpdart.dart';
 
-//Định nghĩa lớp AuthRepositoryImpl để triển khai các chức năng của AuthRepository
 class AuthRepositoryImpl implements AuthRepository {
-  //Khởi tạo một đối tượng AuthRemoteDataSource để tương tác với dữ liệu người dùng từ Supabase
   final AuthRemoteDataSource remoteDataSource;
+  final ConnectionChecker connectionChecker;
+  const AuthRepositoryImpl(this.remoteDataSource, this.connectionChecker);
 
-  AuthRepositoryImpl(this.remoteDataSource);
   @override
   Future<Either<Failure, User>> currentUser() async {
     try {
-      final session = remoteDataSource.currentUserSession;
+      if (!await (connectionChecker.isConnected)) {
+        final session = remoteDataSource.currentUserSession;
 
-      if (session == null) {
+        if (session == null) {
+          return left(Failure('User not logged in!'));
+        }
+
+        return right(
+          UserModel(
+            id: session.user.id,
+            email: session.user.email ?? '',
+            name: '',
+          ),
+        );
+      }
+      final user = await remoteDataSource.getCurrentUserData();
+      if (user == null) {
         return left(Failure('User not logged in!'));
       }
 
-      return right(
-        UserModel(
-          id: session.user.id,
-          email: session.user.email ?? '',
-          name: '',
-        ),
-      );
+      return right(user);
     } on ServerException catch (e) {
       return left(Failure(e.message));
     }
   }
 
-  //* Hàm đăng nhập tài khoản với email và mật khẩu
   @override
   Future<Either<Failure, User>> loginWithEmailPassword({
     required String email,
@@ -47,38 +55,26 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
-  //* Hàm đăng ký tài khoản mới với email và mật khẩu
   @override
   Future<Either<Failure, User>> signUpWithEmailPassword({
     required String name,
     required String email,
     required String password,
   }) async {
-    try {
-      //Gọi phương thức signUpWithEmailPassword từ remoteDataSource để đăng ký tài khoản mới
-      final user = await remoteDataSource.signUpWithEmailPassword(
+    return _getUser(
+      () async => await remoteDataSource.signUpWithEmailPassword(
         name: name,
         email: email,
         password: password,
-      );
-
-      //Nếu userId rỗng, ném ra ngoại lệ ServerException
-      if (user.id.isEmpty) {
-        throw ServerException(
-          'Failed to sign up. User ID is empty.',
-          code: 'USER_ID_EMPTY',
-        );
-      }
-
-      //Trả về đối tượng User từ userId
-      return right(user);
-    } on ServerException catch (e) {
-      return left(Failure(e.message));
-    }
+      ),
+    );
   }
 
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
     try {
+      if (!await (connectionChecker.isConnected)) {
+        return left(Failure(Constants.noConnectionErrorMessage));
+      }
       final user = await fn();
 
       return right(user);
