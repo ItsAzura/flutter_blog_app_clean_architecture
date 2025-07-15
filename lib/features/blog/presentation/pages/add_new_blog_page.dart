@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:blog_app/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:blog_app/core/common/widgets/custom_snackbar.dart';
 import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/theme/app_palette.dart';
 import 'package:blog_app/core/utils/pick_image.dart';
@@ -76,17 +77,12 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
       body: BlocConsumer<BlogBloc, BlogState>(
         listener: (context, state) {
           if (state is BlogFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error),
-                duration: const Duration(seconds: 2),
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                padding: EdgeInsets.all(10),
-                behavior: SnackBarBehavior.floating,
-              ),
+            CustomSnackbar.show(
+              context,
+              state.error,
+              backgroundColor: Colors.red, // tuỳ chọn
+              duration: Duration(seconds: 2), // tuỳ chọn
+              bottomPadding: 10,
             );
           } else if (state is BlogUploadSuccess) {
             Navigator.pushAndRemoveUntil(

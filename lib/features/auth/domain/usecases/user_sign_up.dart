@@ -37,9 +37,11 @@ class UserSignUp implements UseCase<User, UserSignUpParams> {
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
       caseSensitive: false,
     );
-    
+
     if (!emailRegex.hasMatch(params.email.trim())) {
-      return left(Failure('Email không hợp lệ. Vui lòng kiểm tra lại định dạng email.'));
+      return left(
+        Failure('Email không hợp lệ. Vui lòng kiểm tra lại định dạng email.'),
+      );
     }
 
     // Kiểm tra độ dài email

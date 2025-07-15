@@ -19,4 +19,7 @@ abstract interface class AuthRepository {
 
   //Lấy thông tin người dùng hiện tại.
   Future<Either<Failure, User>> currentUser();
+
+  //Đăng xuất người dùng hiện tại.
+  Future<Either<Failure, void>> signOut();
 }

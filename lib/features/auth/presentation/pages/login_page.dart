@@ -1,3 +1,4 @@
+import 'package:blog_app/core/common/widgets/custom_snackbar.dart';
 import 'package:blog_app/core/theme/app_palette.dart';
 import 'package:blog_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_app/features/auth/presentation/pages/signup_page.dart';
@@ -35,19 +36,12 @@ class _LoginPageState extends State<LoginPage> {
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    state.message,
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  backgroundColor: Colors.red,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  behavior: SnackBarBehavior.floating,
-                ),
+              CustomSnackbar.show(
+                context,
+                state.message,
+                backgroundColor: Colors.green, // tuỳ chọn
+                duration: Duration(seconds: 2), // tuỳ chọn
+                bottomPadding: 10,
               );
             } else if (state is AuthSuccess) {
               // Navigator.pushAndRemoveUntil(
@@ -55,19 +49,12 @@ class _LoginPageState extends State<LoginPage> {
               //   BlogPage.route(),
               //   (route) => false,
               // );
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Login Successful!',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  padding: EdgeInsets.all(10),
-                  behavior: SnackBarBehavior.floating,
-                ),
+              CustomSnackbar.show(
+                context,
+                "Login Successful!",
+                backgroundColor: Colors.green, // tuỳ chọn
+                duration: Duration(seconds: 2), // tuỳ chọn
+                bottomPadding: 10,
               );
             }
           },

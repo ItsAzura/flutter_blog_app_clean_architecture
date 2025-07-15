@@ -24,6 +24,9 @@ abstract interface class AuthRemoteDataSource {
 
   //Lấy thông tin người dùng hiện tại
   Future<UserModel?> getCurrentUserData();
+
+  //Đăng xuất người dùng
+  Future<void> signOut();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -160,6 +163,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           code: 'SIGNUP_ERROR',
         );
       }
+    }
+  }
+
+  @override
+  Future<void> signOut() {
+    try {
+      //Gọi phương thức signOut của SupabaseClient để đăng xuất người dùng
+      return supabaseClient.auth.signOut();
+    } on AuthException catch (e) {
+      // Ném ra ngoại lệ ServerException nếu có lỗi xảy ra
+      throw ServerException(e.message);
+    } catch (e) {
+      // Ném ra ngoại lệ ServerException với thông tin lỗi
+      throw ServerException(e.toString());
     }
   }
 }
