@@ -16,8 +16,12 @@ Future<void> initDependencies() async {
     anonKey: AppSecrets.supabaseAnonKey,
   );
 
+  Hive.defaultDirectory = (await getApplicationDocumentsDirectory()).path;
+
   //Đăng ký SupabaseClient vào serviceLocator để sử dụng trong các phần khác của ứng dụng
   serviceLocator.registerLazySingleton(() => supabase.client);
+
+  serviceLocator.registerLazySingleton(() => Hive.box(name: 'blogs'));
 
   serviceLocator.registerFactory(() => InternetConnection());
 
@@ -68,7 +72,11 @@ void _initBlog() {
     )
     // Repository
     ..registerFactory<BlogRepository>(
-      () => BlogRepositoryImpl(serviceLocator()),
+      () => BlogRepositoryImpl(
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
+      ),
     )
     // Usecases
     ..registerFactory(() => UploadBlog(serviceLocator()))
