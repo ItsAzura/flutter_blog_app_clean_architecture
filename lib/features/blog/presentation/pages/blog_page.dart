@@ -49,6 +49,9 @@ class _BlogPageState extends State<BlogPage> {
         floatingActionButton: Container(
           margin: const EdgeInsets.only(bottom: 60),
           child: FloatingActionButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(60)),
+            ),
             onPressed: () {
               Navigator.push(
                 context,

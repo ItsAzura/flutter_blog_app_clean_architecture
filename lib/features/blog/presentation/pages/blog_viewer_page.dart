@@ -7,56 +7,103 @@ import 'package:flutter/material.dart';
 class BlogViewerPage extends StatelessWidget {
   static route(Blog blog) =>
       MaterialPageRoute(builder: (context) => BlogViewerPage(blog: blog));
+
   final Blog blog;
   const BlogViewerPage({super.key, required this.blog});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        title: Text(
+          "Bài viết",
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
+      ),
       body: Scrollbar(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  blog.title,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Title
+              Text(
+                blog.title,
+                style: textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.3,
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  'By ${blog.posterName}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
+              ),
+              const SizedBox(height: 20),
+
+              /// Author + Meta
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  '${formatDateBydMMMYYYY(blog.updatedAt)} . ${calculateReadingTime(blog.content)} min',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: AppPalette.greyColor,
-                    fontSize: 16,
-                  ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.person, color: Colors.white),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            blog.posterName.toString(),
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "${formatDateBydMMMYYYY(blog.updatedAt)} • ${calculateReadingTime(blog.content)} read",
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: AppPalette.greyColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(blog.imageUrl),
+              ),
+              const SizedBox(height: 24),
+
+              /// Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Material(
+                  elevation: 3,
+                  color: Colors.transparent,
+                  child: Image.network(blog.imageUrl, fit: BoxFit.cover),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  blog.content,
-                  style: const TextStyle(fontSize: 16, height: 2),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+
+              /// Content
+              Text(
+                blog.content,
+                style: textTheme.bodyLarge?.copyWith(height: 1.8, fontSize: 16),
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
         ),
       ),
