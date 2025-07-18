@@ -72,17 +72,7 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add New Blog'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.done_rounded),
-            onPressed: () {
-              uploadBlog();
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Add New Blog')),
       body: BlocConsumer<BlogBloc, BlogState>(
         listener: (context, state) {
           if (state is BlogFailure) {
@@ -123,8 +113,8 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
                                 child: kIsWeb && webImage != null
                                     ? Image.memory(webImage!, fit: BoxFit.cover)
                                     : image != null
-                                        ? Image.file(image!, fit: BoxFit.cover)
-                                        : const SizedBox(),
+                                    ? Image.file(image!, fit: BoxFit.cover)
+                                    : const SizedBox(),
                               ),
                             ),
                           )
@@ -199,6 +189,16 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
                     BlogEditor(
                       controller: contentController,
                       hintText: 'Blog content',
+                    ),
+
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: uploadBlog,
+                      child: const Text('Upload Blog'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        backgroundColor: AppPalette.gradient1,
+                      ),
                     ),
                   ],
                 ),
