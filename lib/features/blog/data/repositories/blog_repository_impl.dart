@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/core/error/failures.dart';
@@ -23,7 +22,7 @@ class BlogRepositoryImpl implements BlogRepository {
 
   @override
   Future<Either<Failure, Blog>> uploadBlog({
-    required File image,
+    required dynamic image,
     required String title,
     required String content,
     required String posterId,

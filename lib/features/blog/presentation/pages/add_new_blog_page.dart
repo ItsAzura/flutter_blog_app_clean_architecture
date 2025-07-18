@@ -11,6 +11,8 @@ import 'package:blog_app/features/blog/presentation/widgets/blog_editor.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 class AddNewBlogPage extends StatefulWidget {
   const AddNewBlogPage({super.key});
@@ -25,12 +27,19 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
   final formKey = GlobalKey<FormState>();
   List<String> selectedTopics = [];
   File? image;
+  Uint8List? webImage;
 
   void selectImage() async {
     final pickedImage = await pickImage();
     if (pickedImage != null) {
       setState(() {
-        image = pickedImage;
+        if (kIsWeb) {
+          webImage = pickedImage.bytes;
+          image = null;
+        } else {
+          image = pickedImage.file;
+          webImage = null;
+        }
       });
     }
   }
@@ -38,7 +47,7 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
   void uploadBlog() {
     if (formKey.currentState!.validate() &&
         selectedTopics.isNotEmpty &&
-        image != null) {
+        ((kIsWeb && webImage != null) || (!kIsWeb && image != null))) {
       final posterId =
           (context.read<AppUserCubit>().state as AppUserLoggedIn).user.id;
       context.read<BlogBloc>().add(
@@ -46,7 +55,7 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
           posterId: posterId,
           title: titleController.text.trim(),
           content: contentController.text.trim(),
-          image: image!,
+          image: kIsWeb ? webImage! : image!,
           topics: selectedTopics,
         ),
       );
@@ -103,7 +112,7 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
                 key: formKey,
                 child: Column(
                   children: [
-                    image != null
+                    (webImage != null || image != null)
                         ? GestureDetector(
                             onTap: selectImage,
                             child: SizedBox(
@@ -111,7 +120,11 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
                               height: 150,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: Image.file(image!, fit: BoxFit.cover),
+                                child: kIsWeb && webImage != null
+                                    ? Image.memory(webImage!, fit: BoxFit.cover)
+                                    : image != null
+                                        ? Image.file(image!, fit: BoxFit.cover)
+                                        : const SizedBox(),
                               ),
                             ),
                           )

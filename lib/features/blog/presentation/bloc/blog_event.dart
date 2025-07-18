@@ -7,7 +7,7 @@ final class BlogUpload extends BlogEvent {
   final String posterId;
   final String title;
   final String content;
-  final File image;
+  final dynamic image;
   final List<String> topics;
 
   BlogUpload({

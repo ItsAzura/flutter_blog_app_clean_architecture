@@ -1,12 +1,25 @@
 import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
-Future<File?> pickImage() async {
+class PickedImageResult {
+  final File? file;
+  final Uint8List? bytes;
+  PickedImageResult({this.file, this.bytes});
+}
+
+Future<PickedImageResult?> pickImage() async {
   try {
-    final xFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final picker = ImagePicker();
+    final xFile = await picker.pickImage(source: ImageSource.gallery);
     if (xFile != null) {
-      return File(xFile.path);
+      if (kIsWeb) {
+        final bytes = await xFile.readAsBytes();
+        return PickedImageResult(bytes: bytes);
+      } else {
+        return PickedImageResult(file: File(xFile.path));
+      }
     }
     return null;
   } catch (e) {
