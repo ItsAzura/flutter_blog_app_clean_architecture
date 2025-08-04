@@ -35,8 +35,11 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: BlocConsumer<AuthBloc, AuthState>(
+        //Blog Consumer lắng nghe state khi user đăng ký
+        child:  BlocConsumer<AuthBloc, AuthState>(
+          //BlogListener thì lắng nghe state để thực hiện hành động
           listener: (context, state) {
+            //Nếu thất bại thì hiện thông báo thất bại
             if (state is AuthFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -52,6 +55,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   behavior: SnackBarBehavior.floating,
                 ),
               );
+              //Nếu thành công thì hiện thông báo thành công
             } else if (state is AuthSuccess) {
               // Navigator.pushAndRemoveUntil(
               //   context,
@@ -74,6 +78,7 @@ class _SignUpPageState extends State<SignUpPage> {
               );
             }
           },
+          //BlocBuilder lắng nghe state để cập nhật giao diện
           builder: (context, state) {
             if (state is AuthLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -105,6 +110,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       if (formKey.currentState!.validate()) {
                         context.read<AuthBloc>().add(
                           AuthSignUp(
+                            //Đầu vào là thông tin user nhập thông quan các trường
                             email: emailController.text.trim(),
                             password: passwordController.text.trim(),
                             name: nameController.text.trim(),

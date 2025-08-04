@@ -38,6 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignOut>(_onAuthSignOut);
   }
 
+  //* Kiểm tra người dùng đã đăng nhập hay chưa
   void _isUserLoggedIn(
     AuthIsUserLoggedIn event,
     Emitter<AuthState> emit,
@@ -50,7 +51,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  //* Hàm Đăng ký người dùng
   void _onAuthSignUp(AuthSignUp event, Emitter<AuthState> emit) async {
+    //gọi usecase đăng ký người dùng
     final res = await _userSignUp(
       UserSignUpParams(
         email: event.email,
@@ -59,29 +62,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
 
+    //Trả về kết quả
     res.fold(
+      //Thất bại thì emit AuthFailure cùng với message lỗi
       (failure) => emit(AuthFailure(failure.message)),
+
+      //Thành công thì emit AuthSuccess cùng với thông tin người dùng
       (user) => _emitAuthSuccess(user, emit),
     );
   }
 
+  //* Hàm Đăng nhập người dùng
   void _onAuthLogin(AuthLogin event, Emitter<AuthState> emit) async {
+    //gọi usecase đăng nhập người dùng
     final res = await _userLogin(
       UserLoginParams(email: event.email, password: event.password),
     );
 
+    //Trả về kết quả
     res.fold(
-      (l) => emit(AuthFailure(l.message)),
-      (r) => _emitAuthSuccess(r, emit),
+      //Nếu thất bại thì emit AuthFailure cùng với message lỗi
+      (failure) => emit(AuthFailure(failure.message)),
+
+      //Nếu thành công thì emit AuthSuccess cùng với thông tin người dùng
+      (user) => _emitAuthSuccess(user, emit),
     );
   }
 
+  //* Hàm emit AuthSuccess
   void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
+    //Cập nhật thông tin người dùng trong AppUserCubit
     _appUserCubit.updateUser(user);
+
+    //Emit trạng thái AuthSuccess với thông tin người dùng
     emit(AuthSuccess(user));
   }
 
+  //* Hàm Đăng xuất người dùng
   void _onAuthSignOut(AuthSignOut event, Emitter<AuthState> emit) async {
+    //Gọi usecase đăng xuất người dùng
     final res = await _userSignOut(NoParams());
 
     res.fold((failure) => emit(AuthFailure(failure.message)), (_) {

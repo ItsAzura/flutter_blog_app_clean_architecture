@@ -33,8 +33,11 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(15.0),
+        //Blog Consumer lắng nghe state khi user đăng nhập
         child: BlocConsumer<AuthBloc, AuthState>(
+          //BlogListener thì lắng nghe state để thực hiện hành động
           listener: (context, state) {
+            //Nếu thất bại thì hiện thông báo thất bại
             if (state is AuthFailure) {
               CustomSnackbar.show(
                 context,
@@ -43,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                 duration: Duration(seconds: 2), // tuỳ chọn
                 bottomPadding: 10,
               );
+              //Nếu thành công thì hiện thông báo thành công
             } else if (state is AuthSuccess) {
               // Navigator.pushAndRemoveUntil(
               //   context,
@@ -58,7 +62,9 @@ class _LoginPageState extends State<LoginPage> {
               );
             }
           },
+          //BlogBuilder thì lắng nghe state để cập nhật giao diện
           builder: (context, state) {
+            //Nếu đang tải thì hiện CircularProgressIndicator
             if (state is AuthLoading) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -84,7 +90,9 @@ class _LoginPageState extends State<LoginPage> {
                   AuthButton(
                     buttonText: 'Sign in',
                     onPressed: () {
+                      //Kiểm tra form có hợp lệ không
                       if (formKey.currentState!.validate()) {
+                        //Nếu hợp lệ thì gọi sự kiện AuthLogin
                         context.read<AuthBloc>().add(
                           AuthLogin(
                             email: emailController.text.trim(),

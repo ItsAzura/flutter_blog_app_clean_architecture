@@ -4,7 +4,7 @@ import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-//Định nghĩa 1 interface định nghĩa các chức năng cần thiết để làm việc với dữ liệu người dùng từ Supabase
+//*Định nghĩa 1 interface định nghĩa các chức năng cần thiết để làm việc với dữ liệu người dùng từ Supabase
 abstract interface class AuthRemoteDataSource {
   //Lấy phiên đăng nhập
   Session? get currentUserSession;
@@ -38,6 +38,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Session? get currentUserSession => supabaseClient.auth.currentSession;
 
+  //* Lấy thông tin người dùng hiện tại từ Supabase
   @override
   Future<UserModel?> getCurrentUserData() async {
     try {
@@ -60,6 +61,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  //* Đăng Nhập tài khoản với email và mật khẩu
   @override
   Future<UserModel> loginWithEmailPassword({
     required String email,
@@ -84,6 +86,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException('User is null!', code: 'USER_NULL');
       }
 
+      //Trả về một đối tượng UserModel được tạo từ thông tin người dùng trả về từ Supabase
       return UserModel.fromJson(response.user!.toJson());
     } on AuthException catch (e) {
       throw ServerException(e.message);
@@ -166,6 +169,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  //* Đăng xuất người dùng
   @override
   Future<void> signOut() {
     try {
