@@ -8,8 +8,10 @@ class UploadBlog implements UseCase<Blog, UploadBlogParams> {
   final BlogRepository blogRepository;
   UploadBlog(this.blogRepository);
 
+  //* Hàm đăng bài viết
   @override
   Future<Either<Failure, Blog>> call(UploadBlogParams params) async {
+    //Goi phương thức uploadBlog từ blogRepository để đăng bài viết
     return await blogRepository.uploadBlog(
       image: params.image,
       title: params.title,

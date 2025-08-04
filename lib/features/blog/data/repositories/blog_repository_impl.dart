@@ -20,6 +20,7 @@ class BlogRepositoryImpl implements BlogRepository {
     this.connectionChecker,
   );
 
+  //* Hàm Đăng bài viết mới
   @override
   Future<Either<Failure, Blog>> uploadBlog({
     required dynamic image,
@@ -60,6 +61,7 @@ class BlogRepositoryImpl implements BlogRepository {
     }
   }
 
+  //* Hàm lấy tất cả bài viết
   @override
   Future<Either<Failure, List<Blog>>> getAllBlogs() async {
     try {

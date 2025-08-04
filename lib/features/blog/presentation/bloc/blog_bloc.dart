@@ -21,7 +21,12 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     on<BlogFetchAllBlogs>(_onFetchAllBlogs);
   }
 
+  //* Hàm đăng bài viết
   void _onBlogUpload(BlogUpload event, Emitter<BlogState> emit) async {
+    // Kiểm tra các tham số cần thiết
+    emit(BlogLoading());
+
+    // Gọi usecase để đăng bài viết
     final res = await _uploadBlog(
       UploadBlogParams(
         posterId: event.posterId,
@@ -32,18 +37,25 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
       ),
     );
 
+    // Xử lý kết quả trả về
     res.fold(
       (l) => emit(BlogFailure(l.message)),
       (r) => emit(BlogUploadSuccess()),
     );
   }
 
+  //* Hàm lấy tất cả bài viết
   void _onFetchAllBlogs(
     BlogFetchAllBlogs event,
     Emitter<BlogState> emit,
   ) async {
+    // Emit trạng thái đang tải
+    emit(BlogLoading());
+
+    // Gọi usecase để lấy tất cả bài viết
     final res = await _getAllBlogs(NoParams());
 
+    // Xử lý kết quả trả về
     res.fold(
       (l) => emit(BlogFailure(l.message)),
       (r) => emit(BlogsDisplaySuccess(r)),

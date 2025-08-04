@@ -73,16 +73,20 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add New Blog')),
+      //Bloc Consumer lắng nghe state và thực hiện hành động khi có sự thay đổi
       body: BlocConsumer<BlogBloc, BlogState>(
+        //Lắng nghe các sự kiện từ BlogBloc
         listener: (context, state) {
+          //Nếu thất bại thì hiển thị thông báo lỗi
           if (state is BlogFailure) {
             CustomSnackbar.show(
               context,
               state.error,
-              backgroundColor: Colors.red, // tuỳ chọn
-              duration: Duration(seconds: 2), // tuỳ chọn
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 2),
               bottomPadding: 10,
             );
+            //Nếu thành công thì điều hướng về trang BlogPage
           } else if (state is BlogUploadSuccess) {
             Navigator.pushAndRemoveUntil(
               context,
@@ -91,7 +95,9 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
             );
           }
         },
+        //Lắng nghe các sự kiện để cập nhật giao diện
         builder: (context, state) {
+          //Nếu là loading state thì
           if (state is BlogLoading) {
             return const Center(child: CircularProgressIndicator());
           }

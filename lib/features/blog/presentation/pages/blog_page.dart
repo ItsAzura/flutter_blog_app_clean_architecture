@@ -30,8 +30,11 @@ class _BlogPageState extends State<BlogPage> {
 
   @override
   Widget build(BuildContext context) {
+    //BlocListener lắng nghe sự kiện
     return BlocListener<AuthBloc, AuthState>(
+      // Lắng nghe sự kiện AuthBloc
       listener: (context, state) {
+        //Nếu user đăng xuất thì điều hướng về trang đăng nhập
         if (state is AuthInitial) {
           Navigator.pushAndRemoveUntil(
             context,

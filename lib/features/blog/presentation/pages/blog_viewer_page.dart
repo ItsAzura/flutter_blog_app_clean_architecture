@@ -8,6 +8,7 @@ class BlogViewerPage extends StatelessWidget {
   static route(Blog blog) =>
       MaterialPageRoute(builder: (context) => BlogViewerPage(blog: blog));
 
+  //Lấy blog từ tham số
   final Blog blog;
   const BlogViewerPage({super.key, required this.blog});
 

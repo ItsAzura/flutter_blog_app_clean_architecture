@@ -3,6 +3,10 @@ part of 'blog_bloc.dart';
 @immutable
 sealed class BlogEvent {}
 
+//Các sự kiện của blog
+
+//* Sự kiện đăng bài viết
+
 final class BlogUpload extends BlogEvent {
   final String posterId;
   final String title;
@@ -19,4 +23,5 @@ final class BlogUpload extends BlogEvent {
   });
 }
 
+//* Sự kiện lấy tất cả bài viết
 final class BlogFetchAllBlogs extends BlogEvent {}
